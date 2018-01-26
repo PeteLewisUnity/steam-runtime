@@ -13,6 +13,7 @@ LOGFILE=/tmp/${SCRIPTNAME%.*}-$(uname -i).log
 CHROOT_PREFIX="LinuxBuildEnvironment"
 CHROOT_DIR=${HOME}/chroots
 CHROOT_VERSION="20170818"
+RELEASE_KEY_ID="40976EAF437D05B5"
 CHROOT_NAME=""
 BETA_ARG=""
 COLOR_OFF="\033[0m"
@@ -108,7 +109,7 @@ build_chroot()
 
 	# Fetch the Release GPG key
 	KEYRING="$SCRIPTDIR/release-keyring.kbx"
-	$SCRIPTDIR/get-pgp-key.py 40976EAF437D05B5 "$KEYRING"
+	$SCRIPTDIR/get-pgp-key.py "$RELEASE_KEY_ID" "$KEYRING"
 
 	if test ! -d "${CHROOT_DIR}/${CHROOT_NAME}/etc"; then
 		# Create our chroot
