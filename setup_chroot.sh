@@ -83,13 +83,13 @@ build_chroot()
 	# blow away existing directories and recreate empty ones
 	echo -e "\n${COLOR_ON}Creating ${CHROOT_DIR}/${CHROOT_NAME}..."  
 	sudo rm -rf "${CHROOT_DIR}/${CHROOT_NAME}"
-	rm -rf "${CHROOT_DIR}/linux-sdk-${CHROOT_VERSION}"
-	mkdir -p "${CHROOT_DIR}/${CHROOT_NAME}"
+	sudo rm -rf "${CHROOT_DIR}/linux-sdk-${CHROOT_VERSION}"
+	sudo mkdir -p "${CHROOT_DIR}/${CHROOT_NAME}"
 
 	# Create our schroot .conf file
 	echo -e "\n${COLOR_ON}Creating /etc/schroot/chroot.d/${CHROOT_NAME}.conf...${COLOR_OFF}" 
 	printf "[${CHROOT_NAME}]\ndescription=Unity Linux SDK ${CHROOT_VERSION}\ndirectory=${CHROOT_DIR}/${CHROOT_NAME}\npersonality=${personality}\ngroups=sudo\nroot-groups=sudo\npreserve-environment=true\ntype=directory\nprofile=linux-sdk-${CHROOT_VERSION}\nscript-config=linux-sdk-${CHROOT_VERSION}/config\n" | sudo tee /etc/schroot/chroot.d/${CHROOT_NAME}.conf
-	cp /etc/schroot/chroot.d/${CHROOT_NAME}.conf ${CHROOT_DIR}
+	sudo cp /etc/schroot/chroot.d/${CHROOT_NAME}.conf ${CHROOT_DIR}
 
 	printf "FSTAB=\"/etc/schroot/linux-sdk-${CHROOT_VERSION}/fstab\"\nCOPYFILES=\"/etc/schroot/linux-sdk-${CHROOT_VERSION}/copyfiles\"\nNSSDATABASES=\"/etc/schroot/linux-sdk-${CHROOT_VERSION}/nssdatabases\"\n" | tee sdk-profile/config
 	sudo rm -rf "/etc/schroot/linux-sdk-${CHROOT_VERSION}"
@@ -102,8 +102,8 @@ build_chroot()
 		copy_fstab "/etc/schroot/linux-sdk-${CHROOT_VERSION}/fstab-1204" "/etc/schroot/linux-sdk-${CHROOT_VERSION}/fstab"
 	fi
 
-	cp -r sdk-profile "${CHROOT_DIR}/linux-sdk-${CHROOT_VERSION}"
-	cp -r schroot-10mount "${CHROOT_DIR}/10mount"
+	sudo cp -r sdk-profile "${CHROOT_DIR}/linux-sdk-${CHROOT_VERSION}"
+	sudo cp -r schroot-10mount "${CHROOT_DIR}/10mount"
 
 	if test ! -d "${CHROOT_DIR}/${CHROOT_NAME}/etc"; then
 		# Create our chroot
