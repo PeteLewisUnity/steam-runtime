@@ -8,6 +8,7 @@ fi
 
 SCRIPT=$(readlink -f "$0")
 SCRIPTNAME=$(basename "$SCRIPT")
+SCRIPTDIR=$(dirname "$SCRIPT")
 LOGFILE=/tmp/${SCRIPTNAME%.*}-$(uname -i).log
 CHROOT_PREFIX="LinuxBuildEnvironment"
 CHROOT_DIR=${HOME}/chroots
@@ -105,10 +106,14 @@ build_chroot()
 	sudo cp -r sdk-profile "${CHROOT_DIR}/linux-sdk-${CHROOT_VERSION}"
 	sudo cp -r schroot-10mount "${CHROOT_DIR}/10mount"
 
+	# Fetch the Release GPG key
+	KEYRING="$SCRIPTDIR/release-keyring.kbx"
+	$SCRIPTDIR/get-pgp-key.py 40976EAF437D05B5 "$KEYRING"
+
 	if test ! -d "${CHROOT_DIR}/${CHROOT_NAME}/etc"; then
 		# Create our chroot
 		echo -e "\n${COLOR_ON}Bootstrap the chroot...${COLOR_OFF}"
-		sudo -E debootstrap --arch=${pkg} --include=wget,apt-transport-https precise ${CHROOT_DIR}/${CHROOT_NAME} http://archive.ubuntu.com/ubuntu/
+		sudo -E debootstrap --arch=${pkg} --include=wget,apt-transport-https --keyring=${KEYRING} precise ${CHROOT_DIR}/${CHROOT_NAME} http://archive.ubuntu.com/ubuntu/
 	fi
 
 	# Copy over proxy settings from host machine
