@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# If the users' home directory is encrypted we need to mount it differently within the chroot
+FSTAB_HOME_OPTIONS="bind"
+if [ -d "${HOME}/.Private" ]; then
+	FSTAB_HOME_OPTIONS="rbind"
+fi
+
 SCRIPT=$(readlink -f "$0")
 SCRIPTNAME=$(basename "$SCRIPT")
 LOGFILE=/tmp/${SCRIPTNAME%.*}-$(uname -i).log
@@ -62,6 +68,11 @@ prebuild_chroot()
 	fi
 }
 
+copy_fstab()
+{
+	cat $1 | sed -E "s:^(/home.*)(bind):\1${FSTAB_HOME_OPTIONS}:g" | sudo tee $2 > /dev/null
+}
+
 build_chroot()
 {
 	pkg="amd64"
@@ -86,9 +97,9 @@ build_chroot()
 
 	# RBind mount on /run when /run/shm is already a bind mount is bad
 	if test -L /run/shm; then
-		sudo cp "/etc/schroot/linux-sdk-${CHROOT_VERSION}/fstab-1604" "/etc/schroot/linux-sdk-${CHROOT_VERSION}/fstab"
+		copy_fstab "/etc/schroot/linux-sdk-${CHROOT_VERSION}/fstab-1604" "/etc/schroot/linux-sdk-${CHROOT_VERSION}/fstab"
 	else
-		sudo cp "/etc/schroot/linux-sdk-${CHROOT_VERSION}/fstab-1204" "/etc/schroot/linux-sdk-${CHROOT_VERSION}/fstab"
+		copy_fstab "/etc/schroot/linux-sdk-${CHROOT_VERSION}/fstab-1204" "/etc/schroot/linux-sdk-${CHROOT_VERSION}/fstab"
 	fi
 
 	cp -r sdk-profile "${CHROOT_DIR}/linux-sdk-${CHROOT_VERSION}"
